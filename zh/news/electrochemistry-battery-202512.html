@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="https://www.yixi-tech.com/images/logo.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="https://www.yixi-tech.com/images/logo.png">
+  <title>案例丨电化学综合测试仪在新能源电池研发与质控中的应用 — 意曦科技</title>
+  <meta name="description" content="基于 AMETEK 旗下电化学工作站的典型案例：软包电池化成前几周 EIS 跟踪、负极硅碳首效评估与电解液配方筛选，展示可复现的实验方案与判读要点。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+  <nav class="site-nav" id="siteNav">
+    <div class="container nav-container">
+      <a href="../index.html" class="nav-logo">
+        <img src="../../images/logo.png" alt="意曦科技" width="120" height="40" loading="eager" decoding="async">
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html">首页</a>
+        <a href="../about.html">关于我们</a>
+        <a href="../services.html">业务范围</a>
+        <a href="../products.html">产品类目</a>
+        <a href="../applications.html">应用案例</a>
+        <a href="../news.html" class="active">新闻资讯</a>
+        <a href="../contact.html">联系我们</a>
+        <div class="nav-lang">
+          <a href="electrochemistry-battery-202512.html#article" class="active" data-lang="zh">中</a>
+          <a href="../../en/news/electrochemistry-battery-202512.html#article" data-lang="en">EN</a>
+        </div>
+      </div>
+      <a href="../contact.html" class="btn btn-sm btn--primary" style="margin-left:16px">申请报价</a>
+      <button type="button" class="nav-toggle" id="navToggle" aria-label="菜单" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <section class="page-hero">
+    <div id="particles-js" aria-hidden="true"></div>
+    <div class="container">
+      <nav class="breadcrumb" aria-label="面包屑导航">
+        <a href="../index.html">首页</a>
+        <span>/</span>
+        <a href="../news.html">新闻资讯</a>
+        <span>/</span>
+        <span>文章</span>
+      </nav>
+      <h1 style="font-size:1.75rem">案例丨电化学综合测试仪在新能源电池研发与质控中的应用</h1>
+    </div>
+  </section>
+
+  <article id="article" class="news-article-wrap section" tabindex="-1">
+    <div class="container">
+      <div class="news-article animate-on-scroll">
+        <header class="news-article-header">
+          <span class="label label--blue">应用案例</span>
+          <p class="news-article-meta">2025-12 · 意曦科技应用笔记 · AMETEK 电化学</p>
+        </header>
+        <p class="lead">某动力电池材料团队在导入高镍正极与硅碳负极时，需要将「化学过程」与「电芯表现」对齐：同一套设备既要支撑研发阶段的配方筛选，也要在试产线上给出可对比的等效电路与极化数据。以下内容整理自该项目中与 <strong>Princeton Applied Research / Solartron Analytical</strong> 电化学工作站相关的典型用法，便于同业复现实验逻辑。</p>
+
+        <h2>1. 场景与目标</h2>
+        <p>客户痛点集中在三方面：（1）新负极首圈库仑效率分化大，实验室纽扣数据与单层叠片软包不一致；（2）电解液添加剂组合多，缺乏批量、低成本的初筛手段；（3）产线化成工艺窗口窄，需要在前几周循环内用阻抗增长趋势做早期预警。</p>
+
+        <h2>2. 仪器与方法组合</h2>
+        <p>在恒温环境下，以三电极或双电极模式完成：</p>
+        <ul>
+          <li><strong>循环伏安（CV）</strong>：对比不同硅碳比例在模型电解液中的还原峰位与可逆性，快速剔除明显不稳定配方。</li>
+          <li><strong>电化学阻抗谱（EIS）</strong>：在固定 SOC 点采集多频谱，按 Randles / 传输线等效电路拟合，分离欧姆项、界面电荷转移与扩散弧；用于跟踪 SEI 成熟过程。</li>
+          <li><strong>恒流充放电 + 间歇 titration</strong>：评估倍率容量与极化电压差，为 BMS 策略提供边界条件参考。</li>
+        </ul>
+
+        <h2>3. 可复现的「小批量」流程（示例）</h2>
+        <ol>
+          <li>同类纽扣 cell 先跑通 3 组对照（基准电解液 / 添加剂 A / 添加剂 B），固定电压窗口与倍率，记录首圈与第 5 圈 EIS。</li>
+          <li>仅将差分最大的两组进入软包验证，降低试错成本。</li>
+          <li>软包阶段以周为单位记录阻抗；当高频截距连续两周抬升 &gt; 8% 且中频弧扩张时，触发工艺审核（该院内阈值仅供参考）。</li>
+        </ol>
+
+        <h2>4. 项目小结</h2>
+        <p>电化学工作站的价值不在于「单次漂亮的曲线」，而在于<strong>方法学统一</strong>后，研发与质控能用同一种语言讨论界面演变。意曦科技在项目中将硬件通道配置、夹具选型、软件批处理与人员培训打包交付，缩短从「会做实验」到「敢下结论」的周期。</p>
+
+        <p class="note">若您的团队正在评估多通道需求、高压电解池夹具或与手套箱联动，欢迎通过 <a href="../contact.html">联系我们</a> 获取配置建议与参考方法包。产品技术规格以制造商最新资料为准。</p>
+
+        <p style="margin-top:28px"><a href="../news.html" class="btn btn--outline">← 返回资讯列表</a></p>
+      </div>
+    </div>
+  </article>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/zh/index.html" class="nav-logo" style="margin-bottom:16px">
+            <img src="/images/logo.png" alt="意曦科技" width="120" height="40" loading="lazy" decoding="async">
+          </a>
+          <p>意曦科技贸易（上海）有限公司<br>ZYGO · TSI · AMETEK — 精密仪器方案、技术交付与国际贸易</p>
+        </div>
+        <div>
+          <h4 class="footer-heading">快速导航</h4>
+          <ul>
+            <li><a href="/zh/index.html">首页</a></li>
+            <li><a href="/zh/about.html">关于我们</a></li>
+            <li><a href="/zh/products.html">产品类目</a></li>
+            <li><a href="/zh/services.html">业务范围</a></li>
+            <li><a href="/zh/applications.html">应用案例</a></li>
+            <li><a href="/zh/news.html">新闻资讯</a></li>
+            <li><a href="/zh/contact.html">联系我们</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">合作品牌 · 产品类目</h4>
+          <ul>
+            <li><a href="/zh/products.html#zygo-interferometer">激光干涉仪（ZYGO）</a></li>
+            <li><a href="/zh/products.html#zygo-profilometer">白光轮廓仪（ZYGO）</a></li>
+            <li><a href="/zh/products.html#tsi-aerotrak">洁净粒子计数（TSI）</a></li>
+            <li><a href="/zh/products.html#tsi-smps">粒径谱仪（TSI）</a></li>
+            <li><a href="/zh/products.html#ametek-electrochemistry">电化学工作站（AMETEK）</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">联系方式</h4>
+          <div class="footer-contact-row"><span aria-hidden="true">📞</span><span>+86-18101830254</span></div>
+          <div class="footer-contact-row"><span aria-hidden="true">✉️</span><span>info@yixi-tech.com</span></div>
+          <div class="footer-contact-row"><span aria-hidden="true">💬</span><span>公众号：意曦进口管家</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 意曦科技贸易（上海）有限公司 版权所有</span>
+        <nav class="footer-bottom-links" aria-label="页脚链接">
+          <a href="/zh/sitemap.html">网站导航</a>
+          <a href="/zh/privacy.html">隐私声明</a>
+          <a href="/zh/cookies.html">Cookie 说明</a>
+          <a href="/zh/terms.html">使用条款</a>
+        </nav>
+        <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener" class="footer-bottom-icp">沪ICP备2024076188号-1</a>
+      </div>
+    </div>
+  </footer>
+
+
+
+
+
+  <script src="../../js/particles.min.js"></script>
+  <script src="../../js/particles-config.js"></script>
+  <script src="../../js/main.js"></script>
+</body>
+</html>

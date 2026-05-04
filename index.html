@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="https://www.yixi-tech.com/images/logo.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="https://www.yixi-tech.com/images/logo.png">
+  <!-- 首选：在 Web 服务器上对「/」或「/index.html」配置 301 永久重定向到 /zh/index.html（或 /zh/） -->
+  <!-- Nginx 示例：location = / { return 301 /zh/index.html; } -->
+  <!-- Apache 示例：RedirectMatch 301 ^/$ /zh/index.html -->
+  <link rel="canonical" href="https://www.yixi-tech.com/zh/index.html">
+  <title>意曦科技</title>
+  <script>
+    (function () {
+      if (/^https?:/i.test(window.location.protocol)) {
+        window.location.replace(window.location.origin + '/zh/index.html');
+      } else {
+        window.location.replace('zh/index.html');
+      }
+    })();
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=zh/index.html">
+  </noscript>
+</head>
+<body>
+  <p style="font-family:system-ui,sans-serif;margin:2rem;line-height:1.6">正在跳转至中文首页。若未自动跳转，请<a href="zh/index.html">点此</a>。</p>
+</body>
+</html>

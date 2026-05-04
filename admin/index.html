@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>意曦科技 — 管理后台</title>
+<link rel="icon" type="image/png" href="/images/logo.png" sizes="32x32">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB',sans-serif;background:#F0F4F8;color:#1a2332;line-height:1.5}
+  a{color:inherit}
+
+  /* Login */
+  #loginOverlay{position:fixed;inset:0;background:linear-gradient(135deg,#020D1B 0%,#0a1f3d 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
+  .login-card{background:#fff;border-radius:16px;padding:40px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,0.4)}
+  .login-card .badge{display:inline-block;background:#EBF3FF;color:#0063CC;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:0.05em}
+  .login-card h1{font-size:22px;font-weight:800;color:#020D1B;margin-top:12px}
+  .login-card h2{font-size:13px;color:#64748b;margin-top:4px;font-weight:400;margin-bottom:24px}
+  .login-card input{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;margin-bottom:12px}
+  .login-card input:focus{border-color:#0063CC;background:#fff;box-shadow:0 0 0 3px rgba(0,99,204,0.12)}
+  .login-card button{width:100%;padding:12px;background:#0063CC;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
+  .login-card button:hover{background:#0052aa}
+  #loginErr{color:#ef4444;font-size:12px;margin-top:8px;display:none;text-align:center}
+
+  /* Layout */
+  #adminLayout{display:flex;min-height:100vh}
+  .sidebar{width:240px;min-height:100vh;background:#020D1B;color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+  .sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+  .sidebar-logo .brand{font-size:15px;font-weight:700}
+  .sidebar-logo .sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.04em}
+  .sidebar-nav{flex:1;padding:12px 0}
+  .nav-section{font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);padding:14px 20px 4px;letter-spacing:0.1em;text-transform:uppercase}
+  .sidebar-nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,0.65);text-decoration:none;font-size:13.5px;border-left:3px solid transparent;cursor:pointer}
+  .sidebar-nav a:hover{background:rgba(255,255,255,0.07);color:#fff}
+  .sidebar-nav a.active{color:#fff;background:rgba(0,99,204,0.25);border-left-color:#0063CC}
+  .sidebar-nav .icon{width:20px;text-align:center}
+  .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08)}
+  .logout-btn{width:100%;padding:9px 12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.65);border-radius:8px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .logout-btn:hover{background:rgba(255,255,255,0.13);color:#fff}
+  main.admin-main{flex:1;margin-left:240px;padding:32px 36px}
+
+  .page-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+  .page-header h2{font-size:24px;font-weight:800;color:#020D1B}
+  .page-header p{color:#64748b;margin-top:4px;font-size:13px}
+  .page-header .actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  .panel{background:#fff;border-radius:12px;padding:24px 28px;box-shadow:0 2px 12px rgba(0,0,0,0.05);border:1px solid #f1f5f9;margin-bottom:20px}
+  .panel-title{font-size:14px;font-weight:700;color:#020D1B;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #eef2f7;display:flex;align-items:center;gap:8px}
+  .panel-title .lang-tag{font-size:10px;background:#EBF3FF;color:#0063CC;padding:2px 8px;border-radius:20px;letter-spacing:0.06em}
+
+  .form-row{margin-bottom:16px}
+  .form-row label{display:block;font-size:12.5px;font-weight:600;color:#374151;margin-bottom:6px}
+  .form-row input,.form-row textarea{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13.5px;color:#1f2937;background:#f8fafc;font-family:inherit;outline:none}
+  .form-row input:focus,.form-row textarea:focus{border-color:#0063CC;background:#fff;box-shadow:0 0 0 3px rgba(0,99,204,0.1)}
+  .form-row textarea{resize:vertical;min-height:64px;line-height:1.6;font-family:'SF Mono','Menlo',Consolas,monospace;font-size:12.5px}
+  .hint{font-size:11.5px;color:#9ca3af;margin-top:4px;line-height:1.5}
+  .hint code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:11px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none;line-height:1}
+  .btn-primary{background:#0063CC;color:#fff}
+  .btn-primary:hover{background:#0052aa}
+  .btn-outline{background:#fff;border:1.5px solid #e2e8f0;color:#374151}
+  .btn-outline:hover{background:#f8fafc}
+  .btn-green{background:#10b981;color:#fff}
+  .btn-green:hover{background:#059669}
+  .btn-danger{background:#fff;border:1.5px solid #fecaca;color:#ef4444}
+  .btn-danger:hover{background:#fef2f2}
+  .btn:disabled{opacity:0.55;cursor:not-allowed}
+
+  .toast{position:fixed;top:18px;right:18px;background:#10b981;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:9999;transform:translateX(120%);transition:transform 0.3s;box-shadow:0 8px 24px rgba(16,185,129,0.3)}
+  .toast.show{transform:translateX(0)}
+  .toast.warn{background:#f59e0b;box-shadow:0 8px 24px rgba(245,158,11,0.3)}
+  .toast.error{background:#ef4444;box-shadow:0 8px 24px rgba(239,68,68,0.3)}
+
+  table.audit{width:100%;border-collapse:collapse;font-size:13px}
+  table.audit th,table.audit td{text-align:left;padding:8px 10px;border-bottom:1px solid #f1f5f9}
+  table.audit th{font-size:11.5px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.04em}
+  .ok{color:#10b981;font-weight:600}
+  .warn{color:#f59e0b;font-weight:600}
+  .miss{color:#ef4444;font-weight:600}
+
+  .view{display:none}
+  .view.active{display:block}
+
+  .callout{background:#FEF9C3;border:1px solid #FEF08A;color:#854D0E;padding:14px 16px;border-radius:10px;font-size:13px;margin-bottom:18px}
+  .callout strong{color:#713F12}
+  .callout code{background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;font-size:12px}
+
+  .summary-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+  .sc{background:#fff;border-radius:12px;padding:18px 20px;border:1px solid #f1f5f9;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+  .sc .num{font-size:26px;font-weight:800;color:#020D1B}
+  .sc .label{font-size:12px;color:#64748b;margin-top:2px}
+
+  .file-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;margin-top:14px}
+  .file-list .row{font-size:12.5px;padding:6px 10px;background:#f8fafc;border-radius:6px;font-family:'SF Mono','Menlo',monospace;color:#475569;display:flex;justify-content:space-between;align-items:center}
+
+  @media (max-width: 760px){
+    .sidebar{position:relative;width:100%;min-height:auto}
+    main.admin-main{margin-left:0;padding:20px}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <span class="badge">ADMIN</span>
+    <h1>意曦科技</h1>
+    <h2>内容管理后台 · Content Console</h2>
+    <input type="password" id="loginPass" placeholder="管理员密码" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">登录</button>
+    <p id="loginErr">密码错误，请重试</p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminLayout" style="display:none">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">意曦科技</div>
+      <div class="sub">管理后台 · Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">主菜单</div>
+      <a data-view="overview" class="active"><span class="icon">📊</span>概览 / 站点同步</a>
+      <div class="nav-section">内容编辑</div>
+      <a data-view="global"><span class="icon">🏷️</span>全局信息</a>
+      <a data-view="hero"><span class="icon">🌟</span>首页 Hero（中/英）</a>
+      <a data-view="address"><span class="icon">🏢</span>公司地址</a>
+      <div class="nav-section">部署</div>
+      <a data-view="export"><span class="icon">⬇️</span>导出更新版本</a>
+      <a data-view="help"><span class="icon">📖</span>使用说明</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()"><span>🚪</span>退出登录</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+
+    <!-- ====== OVERVIEW ====== -->
+    <section class="view active" data-view="overview">
+      <div class="page-header">
+        <div>
+          <h2>站点概览</h2>
+          <p>检查中英文页面同步与关键内容的健康状态</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-outline" onclick="runAudit()">🔄 重新检查</button>
+        </div>
+      </div>
+
+      <div id="auditStatus" class="callout" style="display:none"></div>
+
+      <div class="summary-cards" id="summaryCards"></div>
+
+      <div class="panel">
+        <div class="panel-title">📄 公开页面同步状况</div>
+        <table class="audit">
+          <thead><tr><th>页面（相对路径）</th><th>中文</th><th>英文</th><th>页脚</th><th>电话</th><th>邮箱</th><th>ICP</th></tr></thead>
+          <tbody id="auditTable"><tr><td colspan="7" style="color:#94a3b8">点击「重新检查」加载</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====== GLOBAL INFO ====== -->
+    <section class="view" data-view="global">
+      <div class="page-header">
+        <div>
+          <h2>全局信息</h2>
+          <p>电话 / 邮箱 / 公众号名 / ICP / 版权年份；保存后会写入所有公开页面（包括页脚与 JSON-LD）</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        本表单使用<strong>「字符串替换」</strong>策略：把当前版本中的旧值替换为新值。  
+        只要旧值在页面中保持唯一即可正确更新。请<strong>谨慎修改「当前值」</strong>——它代表线上现状，不要手填错。
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">📞 联系方式</div>
+        <div class="grid-2">
+          <div class="form-row">
+            <label>电话 — 当前值（线上现状）</label>
+            <input id="g_phone_old" type="text">
+            <div class="hint">应与 footer / 联系页 / JSON-LD 完全一致。</div>
+          </div>
+          <div class="form-row">
+            <label>电话 — 新值</label>
+            <input id="g_phone_new" type="text">
+          </div>
+          <div class="form-row">
+            <label>邮箱 — 当前值</label>
+            <input id="g_email_old" type="text">
+          </div>
+          <div class="form-row">
+            <label>邮箱 — 新值</label>
+            <input id="g_email_new" type="text">
+            <div class="hint">注意：若启用 FormSubmit，请同步在表单 <code>action</code> 中更新。</div>
+          </div>
+          <div class="form-row">
+            <label>微信公众号 — 当前值</label>
+            <input id="g_wechat_old" type="text">
+          </div>
+          <div class="form-row">
+            <label>微信公众号 — 新值</label>
+            <input id="g_wechat_new" type="text">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">⚖️ 备案与版权</div>
+        <div class="grid-2">
+          <div class="form-row">
+            <label>ICP 备案号 — 当前值</label>
+            <input id="g_icp_old" type="text">
+          </div>
+          <div class="form-row">
+            <label>ICP 备案号 — 新值</label>
+            <input id="g_icp_new" type="text">
+          </div>
+          <div class="form-row">
+            <label>版权年份 — 当前值</label>
+            <input id="g_year_old" type="text">
+            <div class="hint">在 footer 显示为 <code>© 2026 …</code> 中的年份。</div>
+          </div>
+          <div class="form-row">
+            <label>版权年份 — 新值</label>
+            <input id="g_year_new" type="text">
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+        <button class="btn btn-outline" onclick="loadGlobalFromLive()">🔄 从线上读取当前值</button>
+        <button class="btn btn-primary" onclick="saveGlobal()">💾 保存草稿</button>
+      </div>
+    </section>
+
+    <!-- ====== HERO ====== -->
+    <section class="view" data-view="hero">
+      <div class="page-header">
+        <div>
+          <h2>首页 Hero 文案</h2>
+          <p>中文 zh/index.html 与英文 en/index.html 的首屏文案；可独立编辑</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>提示：</strong>段落字段会保留 <code>&lt;strong&gt;</code> 等内联 HTML，编辑时不要破坏标签结构。
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">中文首页 <span class="lang-tag">ZH</span></div>
+        <div class="form-row">
+          <label>Hero 标签（小字）</label>
+          <input id="zh_badge" type="text">
+        </div>
+        <div class="form-row">
+          <label>主标题（第一行）</label>
+          <input id="zh_h1_main" type="text">
+        </div>
+        <div class="form-row">
+          <label>主标题（渐变行 .gradient-text）</label>
+          <input id="zh_h1_grad" type="text">
+        </div>
+        <div class="form-row">
+          <label>主段落（保留 &lt;strong&gt; 等标签）</label>
+          <textarea id="zh_p" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">English Home <span class="lang-tag">EN</span></div>
+        <div class="form-row">
+          <label>Hero badge</label>
+          <input id="en_badge" type="text">
+        </div>
+        <div class="form-row">
+          <label>Heading (line 1)</label>
+          <input id="en_h1_main" type="text">
+        </div>
+        <div class="form-row">
+          <label>Heading (gradient line)</label>
+          <input id="en_h1_grad" type="text">
+        </div>
+        <div class="form-row">
+          <label>Paragraph (HTML preserved)</label>
+          <textarea id="en_p" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+        <button class="btn btn-outline" onclick="loadHeroFromLive()">🔄 从线上读取</button>
+        <button class="btn btn-primary" onclick="saveHero()">💾 保存草稿</button>
+      </div>
+    </section>
+
+    <!-- ====== ADDRESS ====== -->
+    <section class="view" data-view="address">
+      <div class="page-header">
+        <div>
+          <h2>公司地址</h2>
+          <p>同步更新 zh/contact.html、en/contact.html 与首页 JSON-LD 中的 streetAddress</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">中文地址 <span class="lang-tag">ZH</span></div>
+        <div class="form-row">
+          <label>中文地址（单行）</label>
+          <input id="addr_zh" type="text">
+          <div class="hint">将更新 zh/contact.html 中地址行，并写入两份首页的 JSON-LD <code>streetAddress</code>。</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">English address <span class="lang-tag">EN</span></div>
+        <div class="grid-2">
+          <div class="form-row">
+            <label>Line 1</label>
+            <input id="addr_en1" type="text">
+          </div>
+          <div class="form-row">
+            <label>Line 2</label>
+            <input id="addr_en2" type="text">
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+        <button class="btn btn-outline" onclick="loadAddressFromLive()">🔄 从线上读取</button>
+        <button class="btn btn-primary" onclick="saveAddress()">💾 保存草稿</button>
+      </div>
+    </section>
+
+    <!-- ====== EXPORT ====== -->
+    <section class="view" data-view="export">
+      <div class="page-header">
+        <div>
+          <h2>导出更新版本</h2>
+          <p>把所有「保存草稿」中的修改应用到真实 HTML，并打包成 ZIP 下载</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-green" onclick="buildZip()" id="btnBuildZip">📦 应用并下载 ZIP</button>
+        </div>
+      </div>
+
+      <div class="callout">
+        点击下方按钮后，浏览器会逐个 <code>fetch</code> 公开页面、应用替换、汇总到一个 <strong>yixi-website-update.zip</strong>。  
+        解压后<strong>原样替换 OSS Bucket 中的同名文件</strong>即可（路径从 <code>zh/…</code> / <code>en/…</code> / <code>index.html</code> 起）。
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">📋 当前草稿</div>
+        <div id="draftSummary" style="font-size:13px;color:#475569"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🛠️ 高级操作</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-outline" onclick="exportDraftJSON()">💾 导出草稿 JSON</button>
+          <input type="file" id="importDraftFile" accept="application/json" style="display:none" onchange="importDraftJSON(event)">
+          <button class="btn btn-outline" onclick="document.getElementById('importDraftFile').click()">📂 导入草稿 JSON</button>
+          <button class="btn btn-danger" onclick="resetDraft()">🗑️ 清空所有草稿</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== HELP ====== -->
+    <section class="view" data-view="help">
+      <div class="page-header">
+        <div>
+          <h2>使用说明</h2>
+          <p>给非工程师同事看的速查指南</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🚀 三步流程</div>
+        <ol style="padding-left:20px;line-height:1.9;font-size:13.5px;color:#374151">
+          <li>在「<strong>全局信息 / 首页 Hero / 公司地址</strong>」中编辑字段，点击 <strong>💾 保存草稿</strong>（仅保存到本地浏览器，不会动线上）。</li>
+          <li>到「<strong>导出更新版本</strong>」点击 <strong>📦 应用并下载 ZIP</strong>，得到一个补丁包。</li>
+          <li>解压后用 OSS 控制台或 ossutil <strong>原样上传覆盖</strong>，刷新 CDN 即可生效。</li>
+        </ol>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">⚠️ 注意事项</div>
+        <ul style="padding-left:20px;line-height:1.9;font-size:13.5px;color:#374151">
+          <li>本后台依赖浏览器同源 <code>fetch</code>，请<strong>通过 HTTP 访问</strong>（如 <code>http://127.0.0.1:8000/admin/</code> 或正式域名 <code>https://yourdomain/admin/</code>），<strong>不要用 file://</strong> 直接打开。</li>
+          <li>「全局信息」用字符串替换，请<strong>不要随意改「当前值」字段</strong>，它必须与线上实际文本一致。建议先点 <strong>🔄 从线上读取当前值</strong>。</li>
+          <li><strong>页脚</strong>由 <code>snippets/footer-zh.html</code> / <code>snippets/footer-en.html</code> 配合 <code>scripts/sync-footers.py</code> 维护——本后台修改电话/邮箱/ICP 后，<strong>请同步更新这两个片段</strong>，避免下次重新同步覆盖你的修改。</li>
+          <li>更复杂的内容（产品、新闻、应用案例）建议直接编辑源 HTML，再走 git 部署。</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🔐 修改后台密码</div>
+        <p style="font-size:13.5px;color:#374151;line-height:1.7">编辑 <code>admin/index.html</code> 中常量 <code>const PASS = '…';</code> 即可。生产环境建议把 <code>admin/</code> 目录从公开访问中剔除（不上传 OSS，或在 CDN 上加访问控制）。</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast">✅ 操作成功</div>
+
+<!-- JSZip 3.10.1 vendored (no CDN) -->
+<script src="vendor/jszip.min.js"></script>
+<script>
+/* =========================================================
+   Yixi admin v2 — fetch + DOMParser + JSZip
+   ========================================================= */
+const PASS = 'yixi2026';
+const AUTH_KEY = 'yixi_admin_auth_v2';
+const DRAFT_KEY = 'yixi_admin_draft_v2';
+
+/* ---------- auth ---------- */
+function checkAuth(){
+  if(localStorage.getItem(AUTH_KEY) === '1'){
+    document.getElementById('loginOverlay').style.display='none';
+    document.getElementById('adminLayout').style.display='flex';
+  }
+}
+function doLogin(){
+  const v = document.getElementById('loginPass').value;
+  if(v === PASS){
+    localStorage.setItem(AUTH_KEY,'1');
+    document.getElementById('loginOverlay').style.display='none';
+    document.getElementById('adminLayout').style.display='flex';
+    initAdmin();
+  } else {
+    document.getElementById('loginErr').style.display='block';
+  }
+}
+function doLogout(){
+  if(confirm('确认退出？')){
+    localStorage.removeItem(AUTH_KEY);
+    location.reload();
+  }
+}
+
+/* ---------- view router ---------- */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.toggle('active', a.dataset.view === name));
+  if(name === 'overview' && !window._auditDone){ runAudit(); }
+  if(name === 'export'){ renderDraftSummary(); }
+}
+
+/* ---------- draft state ---------- */
+function getDraft(){
+  try{ return JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}'); } catch(_){ return {}; }
+}
+function setDraft(d){ localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }
+function resetDraft(){
+  if(!confirm('清空所有草稿？此操作不可撤销。')) return;
+  localStorage.removeItem(DRAFT_KEY);
+  loadFormFromDraft();
+  toast('已清空草稿');
+}
+
+/* ---------- toast ---------- */
+function toast(msg, kind){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (kind ? ' '+kind : '');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+/* =========================================================
+   Public site URL helper — admin lives at /admin/, files at /zh /en
+   ========================================================= */
+function publicUrl(rel){
+  // admin/index.html → ../zh/... etc.
+  return '../' + rel.replace(/^\//,'');
+}
+
+/* =========================================================
+   Page list (public files we patch)
+   ========================================================= */
+const ALL_PAGES = (() => {
+  const top = ['index.html','about.html','services.html','products.html','applications.html','news.html','contact.html','privacy.html','cookies.html','terms.html','sitemap.html'];
+  const news = ['news/electrochemistry-battery-202512.html','news/metrology-3d-packaging-202602.html','news/sci-tech-import-tax-202604.html','news/wechat-channel-202603.html','news/zygo-interferometer-launch-202601.html'];
+  const list = [];
+  for(const lang of ['zh','en']){
+    for(const f of [...top, ...news]) list.push(`${lang}/${f}`);
+  }
+  list.push('index.html');
+  return list;
+})();
+
+async function fetchText(rel){
+  const r = await fetch(publicUrl(rel), {cache:'no-store'});
+  if(!r.ok) throw new Error(`fetch ${rel} failed: ${r.status}`);
+  return await r.text();
+}
+
+/* =========================================================
+   AUDIT
+   ========================================================= */
+async function runAudit(){
+  const tbody = document.getElementById('auditTable');
+  tbody.innerHTML = '<tr><td colspan="7" style="color:#94a3b8">检查中…</td></tr>';
+  const status = document.getElementById('auditStatus');
+  status.style.display='none';
+
+  const expected = [
+    'index.html','about.html','services.html','products.html','applications.html','news.html','contact.html','privacy.html','cookies.html','terms.html','sitemap.html',
+    'news/electrochemistry-battery-202512.html','news/metrology-3d-packaging-202602.html','news/sci-tech-import-tax-202604.html','news/wechat-channel-202603.html','news/zygo-interferometer-launch-202601.html'
+  ];
+  const rows = [];
+  let total=0, withFooter=0, withPhone=0, withEmail=0, withICP=0, paired=0;
+
+  for(const rel of expected){
+    const r = {file: rel};
+    for(const lang of ['zh','en']){
+      try{
+        const t = await fetchText(`${lang}/${rel}`);
+        r[lang] = {
+          ok: true,
+          footer: t.includes('class="site-footer"'),
+          phone: t.includes('+86-18101830254'),
+          email: t.includes('info@yixi-tech.com'),
+          icp: t.includes('沪ICP备2024076188号-1')
+        };
+      } catch(_){
+        r[lang] = {ok:false};
+      }
+    }
+    rows.push(r);
+    if(r.zh.ok) total++; if(r.en.ok) total++;
+    if(r.zh.ok && r.en.ok) paired++;
+    ['zh','en'].forEach(l=>{
+      if(r[l].ok){
+        if(r[l].footer) withFooter++;
+        if(r[l].phone) withPhone++;
+        if(r[l].email) withEmail++;
+        if(r[l].icp) withICP++;
+      }
+    });
+  }
+
+  // root index.html
+  let rootOk = true;
+  try{
+    const t = await fetch('../index.html',{cache:'no-store'}).then(r=>r.text());
+    rootOk = t.includes('/zh/index.html') && t.includes('<noscript');
+  } catch(_){ rootOk = false; }
+
+  // summary cards
+  document.getElementById('summaryCards').innerHTML = `
+    <div class="sc"><div class="num">${total}</div><div class="label">公开页面（zh + en）</div></div>
+    <div class="sc"><div class="num">${paired}</div><div class="label">中英成对（共 ${expected.length}）</div></div>
+    <div class="sc"><div class="num">${withFooter}</div><div class="label">含统一页脚</div></div>
+    <div class="sc"><div class="num">${withICP}</div><div class="label">含 ICP 备案</div></div>
+  `;
+
+  status.style.display='block';
+  if(paired === expected.length && withFooter === total && rootOk){
+    status.style.background='#DCFCE7'; status.style.borderColor='#86efac'; status.style.color='#166534';
+    status.innerHTML = '<strong>✅ 全部页面同步、页脚一致、根重定向正常 — 可以上线</strong>';
+  } else {
+    status.style.background='#FEF9C3'; status.style.borderColor='#FEF08A'; status.style.color='#854D0E';
+    status.innerHTML = '<strong>⚠️ 检查到差异，请关注下方表格</strong>';
+  }
+
+  tbody.innerHTML = rows.map(r=>{
+    const cell = (s,key) => !s.ok ? '<span class="miss">缺失</span>' : (s[key] ? '<span class="ok">✓</span>' : '<span class="warn">×</span>');
+    const okZh = r.zh.ok ? '<span class="ok">✓</span>' : '<span class="miss">缺失</span>';
+    const okEn = r.en.ok ? '<span class="ok">✓</span>' : '<span class="miss">缺失</span>';
+    // We only show the four content checks for ZH; aggregate display is enough
+    const f = (k)=> (r.zh.ok && r.en.ok) ? (r.zh[k] && r.en[k] ? '<span class="ok">✓</span>' : '<span class="warn">部分</span>') : '<span class="miss">—</span>';
+    return `<tr><td style="font-family:monospace;font-size:12px">${r.file}</td><td>${okZh}</td><td>${okEn}</td><td>${f('footer')}</td><td>${f('phone')}</td><td>${f('email')}</td><td>${f('icp')}</td></tr>`;
+  }).join('');
+
+  window._auditDone = true;
+}
+
+/* =========================================================
+   GLOBAL INFO  (string replace strategy)
+   ========================================================= */
+const G_FIELDS = ['phone','email','wechat','icp','year'];
+const G_DEFAULTS = {
+  phone: '+86-18101830254',
+  email: 'info@yixi-tech.com',
+  wechat: '意曦进口管家',
+  icp: '沪ICP备2024076188号-1',
+  year: '2026'
+};
+
+async function loadGlobalFromLive(){
+  // fetch a representative file (zh/index.html) and try to extract values; fall back to defaults
+  let text = '';
+  try { text = await fetchText('zh/index.html'); } catch(_){ }
+  // simple heuristics: pull from defaults; just confirm presence
+  for(const k of G_FIELDS){
+    const cur = G_DEFAULTS[k];
+    document.getElementById(`g_${k}_old`).value = cur;
+    if(!document.getElementById(`g_${k}_new`).value) document.getElementById(`g_${k}_new`).value = cur;
+  }
+  toast('已从默认表载入当前值（请确认与线上一致）');
+}
+
+function saveGlobal(){
+  const d = getDraft(); d.global = d.global || {};
+  for(const k of G_FIELDS){
+    d.global[k] = {
+      old: document.getElementById(`g_${k}_old`).value.trim(),
+      new: document.getElementById(`g_${k}_new`).value.trim()
+    };
+  }
+  setDraft(d);
+  toast('全局信息草稿已保存');
+}
+
+/* =========================================================
+   HERO  (DOM patch on zh/index.html, en/index.html)
+   ========================================================= */
+const HERO_FIELDS = ['zh_badge','zh_h1_main','zh_h1_grad','zh_p','en_badge','en_h1_main','en_h1_grad','en_p'];
+
+async function loadHeroFromLive(){
+  for(const lang of ['zh','en']){
+    try{
+      const text = await fetchText(`${lang}/index.html`);
+      const doc = new DOMParser().parseFromString(text, 'text/html');
+      const badge = doc.querySelector('.hero .hero-badge');
+      const h1 = doc.querySelector('.hero h1');
+      const p = doc.querySelector('.hero .hero-content > p');
+      if(badge) document.getElementById(`${lang}_badge`).value = badge.textContent.trim();
+      if(h1){
+        const grad = h1.querySelector('.gradient-text');
+        const main = grad ? (h1.firstChild?.textContent || '').replace(/\s+$/,'') : h1.textContent.trim();
+        document.getElementById(`${lang}_h1_main`).value = main.trim();
+        document.getElementById(`${lang}_h1_grad`).value = grad ? grad.textContent.trim() : '';
+      }
+      if(p) document.getElementById(`${lang}_p`).value = p.innerHTML.trim();
+    } catch(e){ console.warn('loadHero', lang, e); }
+  }
+  toast('已从线上读取 Hero 文案');
+}
+
+function saveHero(){
+  const d = getDraft(); d.hero = d.hero || {};
+  for(const k of HERO_FIELDS){
+    d.hero[k] = document.getElementById(k).value;
+  }
+  setDraft(d);
+  toast('Hero 草稿已保存');
+}
+
+/* =========================================================
+   ADDRESS  (zh/contact.html, en/contact.html, +index JSON-LD)
+   ========================================================= */
+async function loadAddressFromLive(){
+  try{
+    const t = await fetchText('zh/contact.html');
+    const doc = new DOMParser().parseFromString(t, 'text/html');
+    const items = [...doc.querySelectorAll('.contact-info-item')];
+    const item = items.find(el => el.querySelector('.contact-icon')?.textContent.trim() === '🏢');
+    if(item){
+      const p = item.querySelector('p');
+      if(p) document.getElementById('addr_zh').value = p.textContent.trim();
+    }
+  } catch(_){ }
+  try{
+    const t = await fetchText('en/contact.html');
+    const doc = new DOMParser().parseFromString(t, 'text/html');
+    const items = [...doc.querySelectorAll('.contact-info-item')];
+    const item = items.find(el => el.querySelector('.contact-icon')?.textContent.trim() === '🏢');
+    if(item){
+      const lines = [...item.querySelectorAll('div[style*="text-secondary"]')];
+      if(lines[0]) document.getElementById('addr_en1').value = lines[0].textContent.trim();
+      if(lines[1]) document.getElementById('addr_en2').value = lines[1].textContent.trim();
+    }
+  } catch(_){ }
+  toast('已从线上读取地址');
+}
+
+function saveAddress(){
+  const d = getDraft();
+  d.address = {
+    zh: document.getElementById('addr_zh').value.trim(),
+    en1: document.getElementById('addr_en1').value.trim(),
+    en2: document.getElementById('addr_en2').value.trim()
+  };
+  setDraft(d);
+  toast('地址草稿已保存');
+}
+
+/* =========================================================
+   APPLY DRAFT to one file's text
+   ========================================================= */
+function applyGlobalToText(text, draft){
+  if(!draft.global) return text;
+  const map = {
+    phone: ['old','new'],
+    email: ['old','new'],
+    icp:   ['old','new'],
+    wechat:['old','new']
+  };
+  for(const k of ['phone','email','icp','wechat']){
+    const v = draft.global[k];
+    if(v && v.old && v.new && v.old !== v.new){
+      text = text.split(v.old).join(v.new);
+    }
+  }
+  // year: replace `© <oldYear> ` with `© <newYear> `
+  const y = draft.global.year;
+  if(y && y.old && y.new && y.old !== y.new){
+    text = text.split(`© ${y.old} `).join(`© ${y.new} `);
+  }
+  return text;
+}
+
+function applyHeroToText(text, draft, lang){
+  if(!draft.hero) return text;
+  const doc = new DOMParser().parseFromString(text, 'text/html');
+  const badge = doc.querySelector('.hero .hero-badge');
+  const h1 = doc.querySelector('.hero h1');
+  const p = doc.querySelector('.hero .hero-content > p');
+  if(badge && draft.hero[`${lang}_badge`] != null) badge.textContent = draft.hero[`${lang}_badge`];
+  if(h1){
+    const grad = h1.querySelector('.gradient-text');
+    const main = draft.hero[`${lang}_h1_main`];
+    const g = draft.hero[`${lang}_h1_grad`];
+    if(main != null && g != null && grad){
+      // rebuild: <main text><br><span class="gradient-text">grad</span>
+      h1.innerHTML = '';
+      h1.appendChild(document.createTextNode(main));
+      h1.appendChild(doc.createElement('br'));
+      const span = doc.createElement('span');
+      span.className = 'gradient-text';
+      span.textContent = g;
+      h1.appendChild(span);
+    }
+  }
+  if(p && draft.hero[`${lang}_p`] != null){
+    p.innerHTML = draft.hero[`${lang}_p`];
+  }
+  return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+}
+
+function applyAddressToText(text, draft, opts){
+  if(!draft.address) return text;
+  const a = draft.address;
+
+  if(opts.kind === 'zh-contact' && a.zh){
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    const items = [...doc.querySelectorAll('.contact-info-item')];
+    const item = items.find(el => el.querySelector('.contact-icon')?.textContent.trim() === '🏢');
+    if(item){
+      const p = item.querySelector('p');
+      if(p) p.textContent = a.zh;
+    }
+    return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+  }
+
+  if(opts.kind === 'en-contact' && (a.en1 || a.en2)){
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    const items = [...doc.querySelectorAll('.contact-info-item')];
+    const item = items.find(el => el.querySelector('.contact-icon')?.textContent.trim() === '🏢');
+    if(item){
+      const lines = [...item.querySelectorAll('div[style*="text-secondary"]')];
+      if(lines[0] && a.en1) lines[0].textContent = a.en1;
+      if(lines[1] && a.en2) lines[1].textContent = a.en2;
+    }
+    return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+  }
+
+  if(opts.kind === 'jsonld-home' && a.zh){
+    // streetAddress is JSON-encoded; replace value text
+    return text.replace(/"streetAddress":"[^"]*"/g, `"streetAddress":${JSON.stringify(a.zh)}`);
+  }
+
+  return text;
+}
+
+/* =========================================================
+   BUILD ZIP
+   ========================================================= */
+async function buildZip(){
+  const draft = getDraft();
+  if(Object.keys(draft).length === 0){
+    toast('草稿为空，没有可应用的修改', 'warn');
+    return;
+  }
+  const btn = document.getElementById('btnBuildZip');
+  btn.disabled = true; btn.textContent = '处理中…';
+
+  try{
+    if(typeof JSZip === 'undefined'){
+      throw new Error('JSZip 加载失败，请检查网络');
+    }
+    const zip = new JSZip();
+    let modified = 0;
+
+    for(const rel of ALL_PAGES){
+      let text;
+      try{ text = await fetchText(rel); } catch(e){ console.warn('skip', rel, e); continue; }
+      const original = text;
+
+      // 1. global
+      text = applyGlobalToText(text, draft);
+
+      // 2. hero (only on zh/index.html and en/index.html)
+      if(rel === 'zh/index.html') text = applyHeroToText(text, draft, 'zh');
+      if(rel === 'en/index.html') text = applyHeroToText(text, draft, 'en');
+
+      // 3. address — contact pages, plus JSON-LD on home pages
+      if(rel === 'zh/contact.html') text = applyAddressToText(text, draft, {kind:'zh-contact'});
+      if(rel === 'en/contact.html') text = applyAddressToText(text, draft, {kind:'en-contact'});
+      if(rel === 'zh/index.html' || rel === 'en/index.html'){
+        text = applyAddressToText(text, draft, {kind:'jsonld-home'});
+      }
+
+      if(text !== original){
+        zip.file(rel, text);
+        modified++;
+      }
+    }
+
+    if(modified === 0){
+      toast('没有页面需要更新', 'warn');
+      btn.disabled = false; btn.textContent = '📦 应用并下载 ZIP';
+      return;
+    }
+
+    const blob = await zip.generateAsync({type:'blob'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `yixi-website-update-${new Date().toISOString().slice(0,10)}.zip`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(`✅ 共更新 ${modified} 个文件，已下载 ZIP`);
+  } catch(e){
+    console.error(e);
+    toast('构建 ZIP 失败：' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '📦 应用并下载 ZIP';
+  }
+}
+
+/* ---------- draft I/O ---------- */
+function exportDraftJSON(){
+  const blob = new Blob([JSON.stringify(getDraft(), null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `yixi-admin-draft-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+function importDraftJSON(ev){
+  const f = ev.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const obj = JSON.parse(r.result);
+      setDraft(obj);
+      loadFormFromDraft();
+      renderDraftSummary();
+      toast('草稿已导入');
+    } catch(e){ toast('导入失败：' + e.message, 'error'); }
+  };
+  r.readAsText(f);
+  ev.target.value = '';
+}
+
+function renderDraftSummary(){
+  const d = getDraft();
+  const el = document.getElementById('draftSummary');
+  if(!el) return;
+  if(!d || Object.keys(d).length === 0){ el.innerHTML = '<em style="color:#94a3b8">尚无草稿</em>'; return; }
+  const lines = [];
+  if(d.global){
+    for(const k of ['phone','email','wechat','icp','year']){
+      const v = d.global[k];
+      if(v && v.old && v.new && v.old !== v.new){
+        lines.push(`<div><strong>${k}</strong>: <span style="color:#9ca3af">${v.old}</span> → <span style="color:#10b981">${v.new}</span></div>`);
+      }
+    }
+  }
+  if(d.hero){
+    const set = new Set();
+    for(const k of HERO_FIELDS){ if(d.hero[k] != null && d.hero[k] !== '') set.add(k.split('_')[0].toUpperCase()); }
+    if(set.size) lines.push(`<div><strong>hero</strong>: 已编辑（${[...set].join(' / ')}）</div>`);
+  }
+  if(d.address){
+    if(d.address.zh) lines.push(`<div><strong>address.zh</strong>: ${d.address.zh}</div>`);
+    if(d.address.en1 || d.address.en2) lines.push(`<div><strong>address.en</strong>: ${[d.address.en1,d.address.en2].filter(Boolean).join(' / ')}</div>`);
+  }
+  el.innerHTML = lines.length ? lines.join('') : '<em style="color:#94a3b8">尚无差异</em>';
+}
+
+/* ---------- form prefill from draft ---------- */
+function loadFormFromDraft(){
+  const d = getDraft();
+  // global
+  for(const k of G_FIELDS){
+    document.getElementById(`g_${k}_old`).value = d.global?.[k]?.old ?? G_DEFAULTS[k];
+    document.getElementById(`g_${k}_new`).value = d.global?.[k]?.new ?? G_DEFAULTS[k];
+  }
+  // hero
+  for(const k of HERO_FIELDS){
+    if(d.hero && d.hero[k] != null) document.getElementById(k).value = d.hero[k];
+  }
+  // address
+  if(d.address){
+    if(d.address.zh) document.getElementById('addr_zh').value = d.address.zh;
+    if(d.address.en1) document.getElementById('addr_en1').value = d.address.en1;
+    if(d.address.en2) document.getElementById('addr_en2').value = d.address.en2;
+  }
+}
+
+/* ---------- init ---------- */
+function initAdmin(){
+  loadFormFromDraft();
+  document.querySelectorAll('.sidebar-nav a').forEach(a => {
+    a.addEventListener('click', e => { e.preventDefault(); showView(a.dataset.view); });
+  });
+  showView('overview');
+}
+checkAuth();
+if(document.getElementById('adminLayout').style.display !== 'none') initAdmin();
+</script>
+</body>
+</html>
